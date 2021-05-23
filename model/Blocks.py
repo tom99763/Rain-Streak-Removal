@@ -3,6 +3,7 @@ import tensorflow as tf
 #Residual dense blocks
 #proposed from this paper
 #Roll : Feature Extraction
+#reference to ResNet and DenseNet : concat + residual
 class RDB(tf.keras.layers.Layer):
     def __init__(self,in_channel =32):
         super(RDB,self).__init__()
