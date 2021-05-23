@@ -89,7 +89,7 @@ class SSDRNet(tf.keras.Model):
         C_with_noise=tf.subtract(x,R2) #C+noise=X-R2
         denoise=self.conv_output(C_with_noise) #denoise=-noise=conv(C+noise)
         C=tf.add(C_with_noise,denoise) #C+noise+denoise=C=desired Component
-        return C
+        return R1,R2,C
 
 '''
 a=tf.random.normal((1,64,64,3))
