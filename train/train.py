@@ -34,7 +34,7 @@ def evaluate_test(model,ds_test):
     for x,gt_C in loop:
         x,gt_C = normalizer(x),normalizer(gt_C)
         R1, R2, C = model(x, training=False)
-        ssim_score=tf.reduce_sum(tf.image.ssim(C,gt_C,1.0))
+        ssim_score=tf.reduce_sum(tf.image.ssim(C,gt_C,255.0))
         total_ssim.append(ssim_score.numpy())
         loop.set_postfix(loss=ssim_score.numpy())
     return np.mean(total_ssim)
