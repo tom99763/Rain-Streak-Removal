@@ -5,7 +5,7 @@ from Blocks import RDB,SDAB,MAM
 
 Achieive pursuit problem : Y=X1+X2+noise --> observe Y , split Y into X1 and X2  
 
-Main Property : the inherent correlation among the rain steaks within an image
+Main Property : the inherent correlation among the rain streaks within an image
 should be observably stronger than that between the rain streaks and the background
 
 First Stage : rain streak component (denoted by R1) is initially generated
