@@ -4,6 +4,7 @@ import tensorflow as tf
 #proposed from this paper
 #Roll : Feature Extraction
 #reference to ResNet and DenseNet : concat + residual ---> consider both spatial and channel domain connection
+#extract deeper feature representation
 class RDB(tf.keras.layers.Layer):
     def __init__(self,in_channel =32):
         super(RDB,self).__init__()
