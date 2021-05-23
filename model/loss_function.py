@@ -10,6 +10,6 @@ loss=loss_hybrid_R1+loss_hybrid_R2+loss_hybrid_desired
 l1 = tf.keras.losses.MeanAbsoluteError()
 def hybrid_loss(gen,gt):
     l1_loss=l1(gt,gen) #l1 distance of two image
-    ssim_loss=-tf.reduce_mean(tf.image.ssim(gen,gt,1.0)) #structure similarity of two image, sum over batch
+    ssim_loss=-tf.reduce_mean(tf.image.ssim(gen,gt,255.0)) #structure similarity of two image, sum over batch
     loss=l1_loss+ssim_loss
     return loss
