@@ -155,7 +155,7 @@ print(m(a).shape)
 
 #Sequential Dual attention blocks
 #https://arxiv.org/pdf/1809.02983.pdf
-#Goal : to search signal for rain streak in spatial domain and channel domain
+#Goal : to search signal in rain streak in spatial domain and channel domain
 class SDAB(tf.keras.layers.Layer):
     def __init__(self,in_channel=32):
         super(SDAB,self).__init__()
