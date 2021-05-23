@@ -16,6 +16,8 @@ Second Stage : The main purpose of integrating the initial rain component
 stage of locating possible rain pixels while suppressing
 non-rain pixels in the image
 
+why 2 stages?:不要被同個石頭絆倒兩次, 再給你看一次一定要會!
+
 Why element-wise addition operation (Conv + ReLU add stage2) ? : The main advantage
 of this element-wise addition operation is to enhance the
 shallow layer features for the second stage of the proposed
