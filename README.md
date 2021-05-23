@@ -14,6 +14,10 @@ Not Complete
 
    * Convolutional Attention Moudule for residual net structure : https://arxiv.org/abs/1807.06521
 
+   * DenseNet : https://arxiv.org/abs/1608.06993
+
+   * ResNet : https://arxiv.org/abs/1512.03385
+
    * Multi-scale sparse coding to solve rain streak pursuit problem: https://openaccess.thecvf.com/content_cvpr_2018/papers/Li_Video_Rain_Streak_CVPR_2018_paper
 
 
