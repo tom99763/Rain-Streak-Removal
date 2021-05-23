@@ -25,4 +25,4 @@ Not Complete
 
 * Dataset download : 
     * Test : https://drive.google.com/drive/folders/1zRda-AqxrimzpPvleFHYtYM2rykNNZ-s?usp=sharing
-    * train : 
+    * train : https://onedrive.live.com/?authkey=%21AIYIy8ZKL9kkmd4&id=66CE859AB42DFA2%2130079&cid=066CE859AB42DFA2
