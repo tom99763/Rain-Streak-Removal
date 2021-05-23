@@ -32,7 +32,7 @@ def evaluate_test(model,ds_test):
     loop = tqdm(ds_test, leave=True)
     total_ssim=[]
     for x,gt_C in loop:
-        x,gt_C = normalizer(x),normalizer(gt_C)
+        x,gt_C = normalizer(x[0]),normalizer(gt_C[0])
         R1, R2, C = model(x, training=False)
         ssim_score=tf.reduce_sum(tf.image.ssim(C,gt_C,1.0))
         total_ssim.append(ssim_score.numpy())
@@ -50,8 +50,8 @@ def train_loop():
     for epoch in range(epochs):
         loop = tqdm(ds_train, leave=True)
         for x,gt_C,gt_R in loop:
-            x=image_color_distort(x) #random augmentation
-            x,gt_C,gt_R=normalizer(x),normalizer(gt_C),normalizer(gt_R)
+            x=image_color_distort(x[0]) #random augmentation
+            x,gt_C,gt_R=normalizer(x),normalizer(gt_C[0]),normalizer(gt_R[0])
             loss=train(x,gt_C,gt_R,model,optimizer)
             loop.set_postfix(loss=f'loss:{loss}')
 
