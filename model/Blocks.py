@@ -259,7 +259,7 @@ class MAM(tf.keras.layers.Layer):
         F2=self.activation_dilated_1(self.conv_dilated_1(x))
         F3=self.activation_dilated_2(self.conv_dilated_2(x))
         F4=self.activation_dilated_3(self.conv_dilated_3(x))
-        F=self.concat([x,F1,F2,F3,F4])
+        F=self.concat([F1,F2,F3,F4,x])
         out=self.conv2(F)
         return out #mixture feature
 '''Test MAM
