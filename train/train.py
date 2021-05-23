@@ -43,7 +43,11 @@ def evaluate_test(model,ds_test):
 def train_loop():
     ds_train=preprocess_train(train_path,train_batch)
     ds_test=preprocess_test(test_path,test_batch)
-    optimizer=tf.keras.optimizers.Adam(learning_rate=lr)
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        initial_learning_rate=lr,
+        decay_steps=4,
+        decay_rate=0.9)
+    optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule)
     model=SSDRNet()
 
     prev_test_ssim_score=0.
