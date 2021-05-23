@@ -1,11 +1,13 @@
 import tensorflow as tf
+import numpy as np
 
-def image_color_distort(inputs):
-    inputs = tf.image.random_contrast(inputs, lower=0.5, upper=1.5)
-    inputs = tf.image.random_brightness(inputs, max_delta=0.2)
-    inputs = tf.image.random_hue(inputs,max_delta= 0.2)
-    inputs = tf.image.random_saturation(inputs,lower = 0.5, upper= 1.5)
-    return inputs
+def augmentation(img,gt_C,gt_R):
+    if np.random.binomial(1,0.5):
+        img = tf.image.flip_left_right(img)
+        gt_R= tf.image.flip_left_right(gt_R)
+        gt_C= tf.image.flip_left_right(gt_C)
+    return img,gt_C,gt_R
+
 
 def preprocess_train(data_path,batch_size):
 
@@ -53,3 +55,18 @@ def preprocess_test(data_path,batch_size):
 
     ds =tf.data.Dataset.zip((ds_img,ds_gt_C)).batch(batch_size)
     return ds
+
+'''
+data_path ='./data/test/'
+
+for x1,x2 in preprocess_test(data_path,32):
+    print(x1[0].shape,x2[0].shape)
+    break
+'''
+
+'''
+data_path='./data/train/'
+for x1,x2,x3 in preprocess_train(data_path,32):
+    print(x1[0].shape,x2[0].shape,x3[0].shape)
+    break
+'''
