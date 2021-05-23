@@ -58,7 +58,7 @@ class SSDRNet(tf.keras.Model):
         self.feature_extractor1=tf.keras.Sequential([RDB() for _ in range(3)]) #extract representative feature
         self.refinement=tf.keras.Sequential([SDAB() for _ in range(4)]) #search rain streak pattern
         self.feature_extractor2=tf.keras.Sequential([RDB() for _ in range(2)]) #extract representative feature
-        self.transformer=MAM() #transform domain from multi-scale dilated convolution method
+        self.transformer=MAM() #transform feature by multi-scale dilated convolution method to represent richer 
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
