@@ -1,9 +1,8 @@
 # Rain-Streak-Removal
 
+* This is implement for this paper : https://ieeexplore.ieee.org/document/9206069
 
 * Related Paper :
-
-   * This paper : https://ieeexplore.ieee.org/document/9206069
    
    * Dilated convolution for multi-scale aggregation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1511.07122
    
