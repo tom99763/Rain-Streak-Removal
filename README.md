@@ -7,6 +7,8 @@
    
    * Dilated convolution for multi-scale aggregation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1511.07122
 
+   * Spatial Transformer Network :　https://arxiv.org/pdf/1506.02025.pdf
+
    * Attention mechanism in computer vision : https://iopscience.iop.org/article/10.1088/1742-6596/1693/1/012173/pdf
    
    * Dual attention network for scene segamentation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1809.02983
