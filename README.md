@@ -1,6 +1,5 @@
 # Rain-Streak-Removal
 
-Not Complete
 
 * Related Paper :
 
