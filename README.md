@@ -23,6 +23,4 @@ Not Complete
    * Strucutral Similarity Metrics:　http://www.cns.nyu.edu/pub/lcv/wang03-preprint.pdf
 
 
-* Dataset download : 
-    * Test : https://drive.google.com/drive/folders/1zRda-AqxrimzpPvleFHYtYM2rykNNZ-s?usp=sharing
-    * train : https://onedrive.live.com/?authkey=%21AIYIy8ZKL9kkmd4&id=66CE859AB42DFA2%2130079&cid=066CE859AB42DFA2
+* Dataset download : https://drive.google.com/file/d/1DpKOV1VOZPU2MXDCpV9mhaEFwyRJ8nR1/view?usp=sharing
