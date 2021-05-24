@@ -210,7 +210,7 @@ print(m(a).shape)
 
 #Multi-scale feature aggregation modules
 #proposed from this paper
-#transform feature representer to image domain
+#see more wider range when doing convolution, and then doing a convolution to conclude them
 class MAM(tf.keras.layers.Layer):
     def __init__(self):
         super(MAM,self).__init__()
