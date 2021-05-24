@@ -33,7 +33,7 @@ def preprocess_train(data_path,batch_size):
         batch_size=1
     )
 
-    ds =tf.data.Dataset.zip((ds_img,ds_gt_C,ds_gt_R)).batch(batch_size)
+    ds =tf.data.Dataset.zip((ds_img,ds_gt_C,ds_gt_R)).batch(batch_size, drop_remainder=False).cache().prefetch(tf.data.experimental.AUTOTUNE)
     return ds
 
 
@@ -53,7 +53,7 @@ def preprocess_test(data_path,batch_size):
         batch_size=1
     )
 
-    ds =tf.data.Dataset.zip((ds_img,ds_gt_C)).batch(batch_size)
+    ds =tf.data.Dataset.zip((ds_img,ds_gt_C)).batch(batch_size, drop_remainder=False).cache().prefetch(tf.data.experimental.AUTOTUNE)
     return ds
 
 '''
