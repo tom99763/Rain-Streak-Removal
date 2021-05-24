@@ -3,6 +3,7 @@
 * This is implement for this paper : https://ieeexplore.ieee.org/document/9206069
 
 * Related Paper :
+   * Different types of convolution : https://www.programmersought.com/article/96374024682/
    
    * Dilated convolution for multi-scale aggregation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1511.07122
    
