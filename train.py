@@ -4,6 +4,8 @@ import tensorflow as tf
 from tqdm import tqdm
 from preprocessing import preprocess_train,preprocess_test,augmentation
 import numpy as np
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 '''labels
 clear : gt_C
@@ -12,9 +14,9 @@ rain streak : gt_R
 
 train_path='./data/train/'
 test_path='./data/test/'
-epochs=100
-train_batch=2 #my compute gpu sucks
-test_batch=32
+epochs=50
+train_batch=18 #my compute gpu sucks
+test_batch=100
 lr=0.0001
 
 normalizer=tf.keras.layers.experimental.preprocessing.Rescaling(1./255.)
@@ -25,18 +27,17 @@ def train(x,gt_C,gt_R,model,optimizer):
         loss=hybrid_loss(R1,gt_R)+hybrid_loss(R2,gt_R)+hybrid_loss(C,gt_C)
     grads=tape.gradient(loss,model.trainable_variables)
     optimizer.apply_gradients(zip(grads,model.trainable_variables))
-    return loss.numpy()
+    return loss
 
 
 def evaluate_test(model,ds_test):
-    loop = tqdm(ds_test, leave=True)
     total_ssim=[]
-    for x,gt_C in loop:
+    print('test time')
+    for x,gt_C in ds_test:
         x,gt_C = normalizer(x[0][:,0,...]),normalizer(gt_C[0][:,0,...])
         R1, R2, C = model(x, training=False)
         ssim_score=tf.reduce_mean(tf.image.ssim(C,gt_C,1.0))
         total_ssim.append(ssim_score.numpy())
-        loop.set_postfix(loss=ssim_score.numpy())
     return np.mean(total_ssim)
 
 
@@ -49,15 +50,15 @@ def train_loop():
     prev_test_ssim_score=0.
     for epoch in range(epochs):
         loop = tqdm(ds_train, leave=True)
-        for x,gt_C,gt_R in loop:
+        for i,(x,gt_C,gt_R) in enumerate(loop):
             #x,gt_C,gt_R=augmentation(x[0][:,0,...],gt_C[0][:,0,...],gt_R[0][:,0,...])
             x, gt_C, gt_R = x[0][:, 0, ...], gt_C[0][:, 0, ...], gt_R[0][:, 0, ...]
             x,gt_C,gt_R=normalizer(x),normalizer(gt_C),normalizer(gt_R)
             loss=train(x,gt_C,gt_R,model,optimizer)
-            loop.set_postfix(loss=f'loss:{loss}')
+            loop.set_postfix(loss=f'epoch:{epoch},no.{i},loss:{loss}')
 
         test_ssim_score=evaluate_test(model,ds_test)
-        loop.set_postfix(loss=f'test_ssim_score:{test_ssim_score}')
+        print(f'test_ssim_score:{test_ssim_score}')
 
         if test_ssim_score>0.7 and test_ssim_score>prev_test_ssim_score:
             print('save weighs')
