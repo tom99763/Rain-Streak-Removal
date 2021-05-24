@@ -7,8 +7,6 @@
    * Dilated convolution for multi-scale aggregation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1511.07122
    
    * Dual attention network for scene segamentation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1809.02983
-
-   * 上兩個paper都是討論對pixel-level的classification, 剛好結合model對rain streak的capture
    
    * PReLU : https://arxiv.org/abs/1502.01852
 
