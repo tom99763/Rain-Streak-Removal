@@ -15,7 +15,7 @@ test_path='./data/test/'
 epochs=100
 train_batch=2 #my compute gpu sucks
 test_batch=32
-lr=0.001
+lr=0.0001
 
 normalizer=tf.keras.layers.experimental.preprocessing.Rescaling(1./255.)
 
@@ -43,11 +43,7 @@ def evaluate_test(model,ds_test):
 def train_loop():
     ds_train=preprocess_train(train_path,train_batch)
     ds_test=preprocess_test(test_path,test_batch)
-    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        initial_learning_rate=lr,
-        decay_steps=4,
-        decay_rate=0.9)
-    optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+    optimizer=tf.keras.optimizers.Adam(learning_rate=lr)
     model=SSDRNet()
 
     prev_test_ssim_score=0.
