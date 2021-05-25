@@ -9,7 +9,7 @@
 
    * Spatial Transformer Network :　https://arxiv.org/pdf/1506.02025.pdf
 
-   * Self-attention GAN : https://arxiv.org/pdf/1805.08318.pdf
+   * Self-Attention GAN : https://arxiv.org/pdf/1805.08318.pdf
 
    * Attention mechanism in computer vision : https://iopscience.iop.org/article/10.1088/1742-6596/1693/1/012173/pdf
    
