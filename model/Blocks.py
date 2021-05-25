@@ -76,8 +76,8 @@ class Component_Attention(tf.keras.layers.Layer):
         M2 = tf.squeeze(tf.transpose(B1, perm=[0, 2, 1]) @ B2,axis=-1)  # batch,32  attention :  (query dot key) dot value
         CMap=tf.reshape(self.mlp(M2),shape=(batch,1,1,c)) #batch,1,1,32
 
-        #broadcast add attention to channel domain of feature x
-        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 ,
+        #residual
+        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 
         return COut
 '''Test Component Attention Block
 a=tf.random.normal((1,64,64,32))
