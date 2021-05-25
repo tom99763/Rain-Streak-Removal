@@ -4,8 +4,6 @@ import tensorflow as tf
 from tqdm import tqdm
 from preprocessing import preprocess_train,preprocess_test,augmentation
 import numpy as np
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 '''labels
 clear : gt_C
@@ -14,10 +12,11 @@ rain streak : gt_R
 
 train_path='./data/train/'
 test_path='./data/test/'
-epochs=50
+epochs=30
 train_batch=18 #my compute gpu sucks
 test_batch=100
-lr=0.0001
+lr=0.0002
+load_weights=True
 
 normalizer=tf.keras.layers.experimental.preprocessing.Rescaling(1./255.)
 
@@ -36,6 +35,7 @@ def evaluate_test(model,ds_test):
     for x,gt_C in ds_test:
         x,gt_C = normalizer(x[0][:,0,...]),normalizer(gt_C[0][:,0,...])
         R1, R2, C = model(x, training=False)
+        C = tf.clip_by_value(C, 0, 1)
         ssim_score=tf.reduce_mean(tf.image.ssim(C,gt_C,1.0))
         total_ssim.append(ssim_score.numpy())
     return np.mean(total_ssim)
@@ -46,6 +46,9 @@ def train_loop():
     ds_test=preprocess_test(test_path,test_batch)
     optimizer=tf.keras.optimizers.Adam(learning_rate=lr)
     model=SSDRNet()
+    if load_weights:
+        print('load weights')
+        model.load_weights('./save/ssdr_weights')
 
     prev_test_ssim_score=0.
     for epoch in range(epochs):
@@ -60,7 +63,7 @@ def train_loop():
         test_ssim_score=evaluate_test(model,ds_test)
         print(f'test_ssim_score:{test_ssim_score}')
 
-        if test_ssim_score>0.7 and test_ssim_score>prev_test_ssim_score:
+        if test_ssim_score>0.85 and test_ssim_score>prev_test_ssim_score:
             print('save weighs')
             model.save_weights('./save/ssdr_weights')
             prev_test_ssim_score=test_ssim_score
