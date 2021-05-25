@@ -87,7 +87,7 @@ class SSDRNet(tf.keras.Model):
 
         #X=Component1+Component2+noise , get desired C=C1 or C2
         C_with_noise=tf.subtract(x,R2) #C+noise=X-R2
-        denoise=self.conv_output(C_with_noise) #denoise=-noise=conv(C+noise)
+        denoise=self.conv_output(C_with_noise) #denoise=-noise=conv(C+noise)-->find a feature s.t. denoised noise in C_with_noise
         C=tf.add(C_with_noise,denoise) #C+noise+denoise=C=desired Component
         return R1,R2,C
 
