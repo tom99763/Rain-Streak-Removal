@@ -27,5 +27,7 @@
    
    * Strucutral Similarity Metrics:　http://www.cns.nyu.edu/pub/lcv/wang03-preprint.pdf
 
+   * Loss function for image restoration :　https://arxiv.org/pdf/1511.08861.pdf
+
 
 * Dataset download : https://drive.google.com/file/d/1DpKOV1VOZPU2MXDCpV9mhaEFwyRJ8nR1/view?usp=sharing
