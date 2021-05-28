@@ -3,8 +3,6 @@ import tensorflow as tf
 #Residual dense blocks
 #proposed from this paper
 #Roll : Feature Extraction
-#reference to ResNet and DenseNet : concat + residual ---> consider both spatial and channel domain connection
-#extract deeper feature representation
 class RDB(tf.keras.layers.Layer):
     def __init__(self,in_channel =32):
         super(RDB,self).__init__()
@@ -22,8 +20,8 @@ class RDB(tf.keras.layers.Layer):
         )
         self.concat=tf.keras.layers.Concatenate(axis=-1)
 
-        self.activation1=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[1, 2])
-        self.activation2=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[1, 2])
+        self.activation1=tf.keras.layers.ReLU()
+        self.activation2=tf.keras.layers.ReLU()
 
     def call(self,x,training=False):
         '''
@@ -53,11 +51,11 @@ class Component_Attention(tf.keras.layers.Layer):
             strides=1,
             padding='same'
         )
-        self.activation = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation = tf.keras.layers.ReLU()
 
         self.mlp = tf.keras.Sequential([
             tf.keras.layers.Dense(units=in_channel//2,activation=None),
-            tf.keras.layers.PReLU(tf.constant_initializer(0.25)), #no shared axis
+            tf.keras.layers.ReLU(), #no shared axis
             tf.keras.layers.Dense(units=in_channel,activation=None)
         ])
 
@@ -76,8 +74,8 @@ class Component_Attention(tf.keras.layers.Layer):
         M2 = tf.squeeze(tf.transpose(B1, perm=[0, 2, 1]) @ B2,axis=-1)  # batch,32  attention :  (query dot key) dot value
         CMap=tf.reshape(self.mlp(M2),shape=(batch,1,1,c)) #batch,1,1,32
 
-        #residual
-        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 
+        #broadcast add attention to channel domain of feature x
+        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 ,
         return COut
 '''Test Component Attention Block
 a=tf.random.normal((1,64,64,32))
@@ -122,9 +120,9 @@ class Subsidiary_Attention(tf.keras.layers.Layer):
         )
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
-        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation_dilated_1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation_dilated_2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation1 = tf.keras.layers.ReLU()
+        self.activation_dilated_1 = tf.keras.layers.ReLU()
+        self.activation_dilated_2 = tf.keras.layers.ReLU()
 
 
     def call(self,x,training=False):
@@ -155,7 +153,6 @@ print(m(a).shape)
 
 #Sequential Dual attention blocks
 #https://arxiv.org/pdf/1809.02983.pdf
-#Goal : to search signal in rain streak in spatial domain and channel domain
 class SDAB(tf.keras.layers.Layer):
     def __init__(self,in_channel=32):
         super(SDAB,self).__init__()
@@ -182,9 +179,9 @@ class SDAB(tf.keras.layers.Layer):
             padding='same'
         )
 
-        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation3 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation1 = tf.keras.layers.ReLU()
+        self.activation2 = tf.keras.layers.ReLU()
+        self.activation3 = tf.keras.layers.ReLU()
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
@@ -210,7 +207,7 @@ print(m(a).shape)
 
 #Multi-scale feature aggregation modules
 #proposed from this paper
-#see more wider range when doing convolution, and then doing a convolution to conclude them
+#transform feature representer to image domain
 class MAM(tf.keras.layers.Layer):
     def __init__(self):
         super(MAM,self).__init__()
