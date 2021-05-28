@@ -4,6 +4,8 @@
 
 * Related Paper :
    * Different types of convolution : https://www.programmersought.com/article/96374024682/
+
+   * What is Receptive field :　https://arxiv.org/abs/1701.04128
    
    * Dilated convolution for multi-scale aggregation : https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1511.07122
 
