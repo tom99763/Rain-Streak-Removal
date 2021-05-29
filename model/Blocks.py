@@ -54,9 +54,10 @@ class Component_Attention(tf.keras.layers.Layer):
         self.activation = tf.keras.layers.ReLU()
 
         self.mlp = tf.keras.Sequential([
-            tf.keras.layers.Dense(units=in_channel//2,activation=None),
-            tf.keras.layers.ReLU(), #no shared axis
-            tf.keras.layers.Dense(units=in_channel,activation=None)
+            tf.keras.layers.Conv2D(filters=in_channel//2,kernel_size=1,activation=None),
+            tf.keras.layers.LayerNormalization(axis=-1),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.Conv2D(filters=in_channel,kernel_size=1,activation=None)
         ])
 
     def call(self,x,training=False):
@@ -71,13 +72,14 @@ class Component_Attention(tf.keras.layers.Layer):
         B2 = tf.nn.softmax(tf.reshape(M1, shape=(batch, h * w, 1)), axis=1)  # batch,hw,1  roll:query*key
 
         # compute dot_similarity(B1,B2) in spatial domain to get attention of each channel---> 32
-        M2 = tf.squeeze(tf.transpose(B1, perm=[0, 2, 1]) @ B2,axis=-1)  # batch,32  attention :  (query dot key) dot value
-        CMap=tf.reshape(self.mlp(M2),shape=(batch,1,1,c)) #batch,1,1,32
+        M2 = tf.reshape(tf.transpose(B1, perm=[0, 2, 1]) @ B2,shape=(batch,1,1,c))  # batch,32  attention :  (query dot key) dot value
+        CMap=self.mlp(M2,training=training) #batch,1,1,32
 
         #broadcast add attention to channel domain of feature x
         COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 ,
         return COut
-'''Test Component Attention Block
+
+'''
 a=tf.random.normal((1,64,64,32))
 m=Component_Attention()
 print(m(a).shape)
@@ -217,12 +219,11 @@ class MAM(tf.keras.layers.Layer):
             strides=1,
             padding='same'
         )
-        self.conv2= tf.keras.layers.Conv2D(
-            filters=3,
-            kernel_size=3,
-            strides=1,
-            padding='same'
-        )
+        self.fusion=tf.keras.Sequential([
+            tf.keras.layers.Conv2D(filters=32,kernel_size=1,activation=None),
+            tf.keras.layers.Conv2D(filters=3,kernel_size=3,padding='same',strides=1,activation=None)
+        ])
+
         self.conv_dilated_1= tf.keras.layers.Conv2D(
             filters=8,
             kernel_size=3,
@@ -260,9 +261,9 @@ class MAM(tf.keras.layers.Layer):
         F3=self.activation_dilated_2(self.conv_dilated_2(x))
         F4=self.activation_dilated_3(self.conv_dilated_3(x))
         F=self.concat([F1,F2,F3,F4,x])
-        out=self.conv2(F)
+        out=self.fusion(F)
         return out #mixture feature
-'''Test MAM
+'''
 a=tf.random.normal((1,64,64,32))
 m=MAM()
 print(m(a).shape)
