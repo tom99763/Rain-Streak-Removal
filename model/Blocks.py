@@ -94,7 +94,8 @@ class Subsidiary_Attention(tf.keras.layers.Layer):
             filters=1,
             kernel_size=3,
             strides=1,
-            padding='same'
+            padding='same',
+            dilation_rate=1
         )
 
         self.conv2= tf.keras.layers.Conv2D(
@@ -211,7 +212,8 @@ class MAM(tf.keras.layers.Layer):
             filters=8,
             kernel_size=3,
             strides=1,
-            padding='same'
+            padding='same',
+            dilation_rate=1
         )
         self.fusion=tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=32,kernel_size=1,activation=None),
