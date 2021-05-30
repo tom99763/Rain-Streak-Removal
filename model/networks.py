@@ -35,7 +35,7 @@ class SSDRNet(tf.keras.Model):
             activation=None,
         )
 
-        self.act1=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.act1=tf.keras.layers.ReLU()
         self.conv_second_stage=tf.keras.layers.Conv2D(
             filters=32,
             kernel_size=3,
@@ -43,7 +43,7 @@ class SSDRNet(tf.keras.Model):
             padding='same',
             activation=None,
         )
-        self.act2=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.act2=tf.keras.layers.ReLU()
 
 
 
