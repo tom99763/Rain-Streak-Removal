@@ -35,7 +35,7 @@ class SSDRNet(tf.keras.Model):
             activation=None,
         )
 
-        self.act1=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
+        self.act1=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
         self.conv_second_stage=tf.keras.layers.Conv2D(
             filters=32,
             kernel_size=3,
@@ -43,7 +43,7 @@ class SSDRNet(tf.keras.Model):
             padding='same',
             activation=None,
         )
-        self.act2=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
+        self.act2=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
 
 
 
@@ -91,12 +91,15 @@ class SSDRNet(tf.keras.Model):
         C=tf.add(C_with_noise,denoise) #C+noise+denoise=C=desired Component
         return R1,R2,C
 
-'''
-a=tf.random.normal((1,64,64,3))
-m=SSDRNet()
-print(m(a))
-print(m.summary())
-'''
+
+#a=tf.random.normal((1,67,67,3))
+#m=SSDRNet()
+#m.load_weights('aaa')
+#x=m(a)
+#m.save_weights('aaa')
+
+
+
 
 
 '''
