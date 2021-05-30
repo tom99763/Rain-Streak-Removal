@@ -20,8 +20,8 @@ class RDB(tf.keras.layers.Layer):
         )
         self.concat=tf.keras.layers.Concatenate(axis=-1)
 
-        self.activation1=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
-        self.activation2=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.activation1=tf.keras.layers.ReLU()
+        self.activation2=tf.keras.layers.ReLU()
 
     def call(self,x,training=False):
         '''
