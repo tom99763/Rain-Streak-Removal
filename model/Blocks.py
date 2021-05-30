@@ -20,8 +20,8 @@ class RDB(tf.keras.layers.Layer):
         )
         self.concat=tf.keras.layers.Concatenate(axis=-1)
 
-        self.activation1=tf.keras.layers.ReLU()
-        self.activation2=tf.keras.layers.ReLU()
+        self.activation1=tf.keras.layers.PReLU(tf.constant_initializer(0.25))
+        self.activation2=tf.keras.layers.PReLU(tf.constant_initializer(0.25))
 
     def call(self,x,training=False):
         '''
@@ -51,12 +51,11 @@ class Component_Attention(tf.keras.layers.Layer):
             strides=1,
             padding='same'
         )
-        self.activation = tf.keras.layers.ReLU()
 
         self.mlp = tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=in_channel//2,kernel_size=1,activation=None),
             tf.keras.layers.LayerNormalization(axis=-1),
-            tf.keras.layers.ReLU(),
+            tf.keras.layers.PReLU(tf.constant_initializer(0.25)),
             tf.keras.layers.Conv2D(filters=in_channel,kernel_size=1,activation=None)
         ])
 
@@ -68,7 +67,7 @@ class Component_Attention(tf.keras.layers.Layer):
 
         #build attention
         B1 = tf.reshape(x, shape=(batch, h * w, c))  # batch,hw,32 , roll:key
-        M1 = self.activation(self.conv(x))  # batch,h,w,1 , roll:non-softmax query*key
+        M1 =self.conv(x)  # batch,h,w,1 , roll:non-softmax query*key
         B2 = tf.nn.softmax(tf.reshape(M1, shape=(batch, h * w, 1)), axis=1)  # batch,hw,1  roll:query*key
 
         # compute dot_similarity(B1,B2) in spatial domain to get attention of each channel---> 32
@@ -122,19 +121,15 @@ class Subsidiary_Attention(tf.keras.layers.Layer):
         )
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
-        self.activation1 = tf.keras.layers.ReLU()
-        self.activation_dilated_1 = tf.keras.layers.ReLU()
-        self.activation_dilated_2 = tf.keras.layers.ReLU()
-
 
     def call(self,x,training=False):
         '''
         x:(batch,h,w,32) roll:key、value
         '''
         #3-head
-        D1=self.activation1(self.conv1(x)) #batch,h,w,1
-        D2=self.activation_dilated_1(self.conv_dilated_1(x)) #batch,h,w,1
-        D3=self.activation_dilated_2(self.conv_dilated_2(x)) #batch,h,w,1
+        D1=self.conv1(x) #batch,h,w,1
+        D2=self.conv_dilated_1(x) #batch,h,w,1
+        D3=self.conv_dilated_2(x) #batch,h,w,1
 
         #concat
         S1=self.concat([D1,D2,D3]) #batch,h,w,3
@@ -181,9 +176,8 @@ class SDAB(tf.keras.layers.Layer):
             padding='same'
         )
 
-        self.activation1 = tf.keras.layers.ReLU()
-        self.activation2 = tf.keras.layers.ReLU()
-        self.activation3 = tf.keras.layers.ReLU()
+        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25))
+        self.activation2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25))
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
@@ -192,13 +186,13 @@ class SDAB(tf.keras.layers.Layer):
         x:(batch,h,w,32)
         '''
         F_1=self.activation1(self.conv1(x)) #batch,h,w,32
-        F_2=self.activation2(self.conv2(F_1)) #batch,h,w,32
+        F_2=self.conv2(F_1) #batch,h,w,32
         COut=self.ca(F_2,training=training) #batch,h,w,32
         SOut=self.sa(COut,training=training) #batch,h,w,32
         F_3=self.concat([COut,SOut]) #batch,h,w,64
         F_4=self.conv3(F_3) #batch,h,w,1
         F_4=tf.add(x,F_4) #residual
-        out=self.activation3(F_4)
+        out=self.activation2(F_4)
         return out
 '''Test SDAB
 a=tf.random.normal((1,64,64,32))
@@ -246,20 +240,16 @@ class MAM(tf.keras.layers.Layer):
             dilation_rate=4
         )
 
-        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation_dilated_1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation_dilated_2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.activation_dilated_3 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
     def call(self,x,training=False):
         '''
         x:(batch,h,w,32)
         '''
-        F1=self.activation1(self.conv1(x))
-        F2=self.activation_dilated_1(self.conv_dilated_1(x))
-        F3=self.activation_dilated_2(self.conv_dilated_2(x))
-        F4=self.activation_dilated_3(self.conv_dilated_3(x))
+        F1=self.conv1(x)
+        F2=self.conv_dilated_1(x)
+        F3=self.conv_dilated_2(x)
+        F4=self.conv_dilated_3(x)
         F=self.concat([F1,F2,F3,F4,x])
         out=self.fusion(F)
         return out #mixture feature
