@@ -54,7 +54,7 @@ class Component_Attention(tf.keras.layers.Layer):
 
         self.mlp = tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=in_channel//2,kernel_size=1,activation=None),
-            tf.keras.layers.BatchNormalization(axis=-1),
+            tf.keras.layers.LayerNormalization(axis=-1),
             tf.keras.layers.ReLU(),
             tf.keras.layers.Conv2D(filters=in_channel,kernel_size=1,activation=None)
         ])
@@ -176,8 +176,8 @@ class SDAB(tf.keras.layers.Layer):
             padding='same'
         )
 
-        self.activation1 = tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
-        self.activation2 = tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.activation1 = tf.keras.layers.ReLU()
+        self.activation2 = tf.keras.layers.ReLU()
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
@@ -240,16 +240,21 @@ class MAM(tf.keras.layers.Layer):
             dilation_rate=4
         )
 
+        self.act1=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[1,2])
+        self.act2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.act3 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.act4 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
     def call(self,x,training=False):
         '''
         x:(batch,h,w,32)
         '''
-        F1=self.conv1(x)
-        F2=self.conv_dilated_1(x)
-        F3=self.conv_dilated_2(x)
-        F4=self.conv_dilated_3(x)
+        F1=self.act1(self.conv1(x))
+        F2=self.act2(self.conv_dilated_1(x))
+        F3=self.act3(self.conv_dilated_2(x))
+        F4=self.act4(self.conv_dilated_3(x))
         F=self.concat([F1,F2,F3,F4,x])
         out=self.fusion(F)
         return out #mixture feature
