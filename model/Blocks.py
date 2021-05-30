@@ -20,8 +20,8 @@ class RDB(tf.keras.layers.Layer):
         )
         self.concat=tf.keras.layers.Concatenate(axis=-1)
 
-        self.activation1=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
-        self.activation2=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
+        self.activation1=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.activation2=tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
 
     def call(self,x,training=False):
         '''
@@ -54,8 +54,8 @@ class Component_Attention(tf.keras.layers.Layer):
 
         self.mlp = tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=in_channel//2,kernel_size=1,activation=None),
-            tf.keras.layers.LayerNormalization(axis=-1),
-            tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3]),
+            tf.keras.layers.BatchNormalization(axis=-1),
+            tf.keras.layers.ReLU(),
             tf.keras.layers.Conv2D(filters=in_channel,kernel_size=1,activation=None)
         ])
 
@@ -176,8 +176,8 @@ class SDAB(tf.keras.layers.Layer):
             padding='same'
         )
 
-        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
-        self.activation2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[3])
+        self.activation1 = tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
+        self.activation2 = tf.keras.Sequential([tf.keras.layers.BatchNormalization(axis=-1),tf.keras.layers.ReLU()])
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
