@@ -12,10 +12,10 @@ rain streak : gt_R
 
 train_path='./data/train/'
 test_path='./data/test/'
-epochs=100
+epochs=50
 train_batch=18 #my compute gpu sucks
 test_batch=100
-lr=0.0002
+lr=0.001
 load_weights=False
 
 normalizer=tf.keras.layers.experimental.preprocessing.Rescaling(1./255.)
