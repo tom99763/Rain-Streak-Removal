@@ -32,20 +32,17 @@ class SSDRNet(tf.keras.Model):
             kernel_size=3,
             strides=1,
             padding='same',
-            activation=None,
+            activation='relu',
         )
 
-        self.act1=tf.keras.layers.ReLU()
+
         self.conv_second_stage=tf.keras.layers.Conv2D(
             filters=32,
             kernel_size=3,
             strides=1,
             padding='same',
-            activation=None,
+            activation='relu',
         )
-        self.act2=tf.keras.layers.ReLU()
-
-
 
         self.conv_output = tf.keras.layers.Conv2D(
             filters=3,
@@ -66,9 +63,8 @@ class SSDRNet(tf.keras.Model):
         '''
         x:(batch,h,w,3)
         '''
-
         #first stage
-        x1=self.act1(self.conv_first_stage(x))
+        x1=self.conv_first_stage(x)
         F1=self.feature_extractor1(x1,training=training)
         F1=self.refinement(F1,training=training)
         F1=self.feature_extractor2(F1,training=training)
@@ -76,8 +72,8 @@ class SSDRNet(tf.keras.Model):
 
 
         #second stage
-        H=self.concat([x,R1])
-        x2=self.act2(self.conv_second_stage(H))
+        H=self.concat([R1,x])
+        x2=self.conv_second_stage(H)
         F2=tf.add(x1,x2)
         F2=self.feature_extractor1(F2,training=training)
         F2=self.refinement(F2,training=training)
