@@ -3,6 +3,8 @@ import tensorflow as tf
 #Residual dense blocks
 #proposed from this paper
 #Roll : Feature Extraction
+#reference to ResNet and DenseNet : concat + residual ---> consider both spatial and channel domain connection
+#extract deeper feature representation
 class RDB(tf.keras.layers.Layer):
     def __init__(self,in_channel =32):
         super(RDB,self).__init__()
@@ -29,7 +31,7 @@ class RDB(tf.keras.layers.Layer):
         output : (batch,h,w,32)
         '''
         F_1=self.activation1(self.conv1(x))
-        F_2=self.concat([F_1,x])  #32-->64
+        F_2=self.concat([x,F_1])  #32-->64
         F_3=self.conv2(F_2) #64-->32
         F_3=tf.add(F_3,x) #Residual
         output=self.activation2(F_3)
@@ -53,10 +55,10 @@ class Component_Attention(tf.keras.layers.Layer):
         )
 
         self.mlp = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(filters=in_channel//2,kernel_size=1,activation=None),
+            tf.keras.layers.Dense(units=in_channel//2,activation=None),
             tf.keras.layers.LayerNormalization(axis=-1),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.Conv2D(filters=in_channel,kernel_size=1,activation=None)
+            tf.keras.layers.ReLU(), #no shared axis
+            tf.keras.layers.Dense(units=in_channel,activation=None)
         ])
 
     def call(self,x,training=False):
@@ -67,18 +69,17 @@ class Component_Attention(tf.keras.layers.Layer):
 
         #build attention
         B1 = tf.reshape(x, shape=(batch, h * w, c))  # batch,hw,32 , roll:key
-        M1 =self.conv(x)  # batch,h,w,1 , roll:non-softmax query*key
+        M1 = self.conv(x)  # batch,h,w,1 , roll:non-softmax query*key
         B2 = tf.nn.softmax(tf.reshape(M1, shape=(batch, h * w, 1)), axis=1)  # batch,hw,1  roll:query*key
 
         # compute dot_similarity(B1,B2) in spatial domain to get attention of each channel---> 32
-        M2 = tf.reshape(tf.transpose(B1, perm=[0, 2, 1]) @ B2,shape=(batch,1,1,c))  # batch,32  attention :  (query dot key) dot value
-        CMap=self.mlp(M2,training=training) #batch,1,1,32
+        M2 = tf.squeeze(tf.transpose(B1, perm=[0, 2, 1]) @ B2,axis=-1)  # batch,32  attention :  (query dot key) dot value
+        CMap=tf.reshape(self.mlp(M2,training=training),shape=(batch,1,1,c)) #batch,1,1,32
 
-        #broadcast add attention to channel domain of feature x
-        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32 ,
+        #residual
+        COut=tf.add(x,CMap)  # batch,h,w,32 + batch,1,1,32 --> batch,h,w,32
         return COut
-
-'''
+'''Test Component Attention Block
 a=tf.random.normal((1,64,64,32))
 m=Component_Attention()
 print(m(a).shape)
@@ -123,6 +124,8 @@ class Subsidiary_Attention(tf.keras.layers.Layer):
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
 
+
+
     def call(self,x,training=False):
         '''
         x:(batch,h,w,32) roll:key、value
@@ -151,6 +154,7 @@ print(m(a).shape)
 
 #Sequential Dual attention blocks
 #https://arxiv.org/pdf/1809.02983.pdf
+#Goal : to search signal in rain streak in spatial domain and channel domain
 class SDAB(tf.keras.layers.Layer):
     def __init__(self,in_channel=32):
         super(SDAB,self).__init__()
@@ -204,7 +208,7 @@ print(m(a).shape)
 
 #Multi-scale feature aggregation modules
 #proposed from this paper
-#transform feature representer to image domain
+#see more wider range when doing convolution, and then doing a convolution to conclude them
 class MAM(tf.keras.layers.Layer):
     def __init__(self):
         super(MAM,self).__init__()
@@ -215,11 +219,12 @@ class MAM(tf.keras.layers.Layer):
             padding='same',
             dilation_rate=1
         )
-        self.fusion=tf.keras.Sequential([
-            tf.keras.layers.Conv2D(filters=32,kernel_size=1,activation=None),
-            tf.keras.layers.Conv2D(filters=3,kernel_size=3,padding='same',strides=1,activation=None)
-        ])
-
+        self.conv2= tf.keras.layers.Conv2D(
+            filters=3,
+            kernel_size=3,
+            strides=1,
+            padding='same'
+        )
         self.conv_dilated_1= tf.keras.layers.Conv2D(
             filters=8,
             kernel_size=3,
@@ -242,25 +247,24 @@ class MAM(tf.keras.layers.Layer):
             dilation_rate=4
         )
 
-        self.act1=tf.keras.layers.PReLU(tf.constant_initializer(0.25),shared_axes=[1,2])
-        self.act2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.act3 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-        self.act4 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
-
+        self.activation1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation_dilated_1 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation_dilated_2 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
+        self.activation_dilated_3 = tf.keras.layers.PReLU(tf.constant_initializer(0.25), shared_axes=[1, 2])
 
         self.concat = tf.keras.layers.Concatenate(axis=-1)
     def call(self,x,training=False):
         '''
         x:(batch,h,w,32)
         '''
-        F1=self.act1(self.conv1(x))
-        F2=self.act2(self.conv_dilated_1(x))
-        F3=self.act3(self.conv_dilated_2(x))
-        F4=self.act4(self.conv_dilated_3(x))
+        F1=self.activation1(self.conv1(x))
+        F2=self.activation_dilated_1(self.conv_dilated_1(x))
+        F3=self.activation_dilated_2(self.conv_dilated_2(x))
+        F4=self.activation_dilated_3(self.conv_dilated_3(x))
         F=self.concat([F1,F2,F3,F4,x])
-        out=self.fusion(F)
+        out=self.conv2(F)
         return out #mixture feature
-'''
+'''Test MAM
 a=tf.random.normal((1,64,64,32))
 m=MAM()
 print(m(a).shape)
