@@ -35,4 +35,8 @@
 * Dataset download : https://drive.google.com/file/d/1DpKOV1VOZPU2MXDCpV9mhaEFwyRJ8nR1/view?usp=sharing
 
 
-## R
+## Result
+
+![ori](./test_imgs/12.jpg)
+
+![res](./test_imgs/result_res.jpg)
