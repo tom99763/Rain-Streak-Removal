@@ -1,0 +1,2 @@
+model_checkpoint_path: "ssdr_weights"
+all_model_checkpoint_paths: "ssdr_weights"
